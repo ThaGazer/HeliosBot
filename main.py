@@ -1,5 +1,4 @@
 import os
-from re import A
 import discord
 from discord.ext import tasks, commands
 
@@ -7,7 +6,7 @@ import connection
 
 # client = discord.Client()
 bot = commands.Bot(command_prefix='!')
-con = connection.instance(id='i-074936a74ded7d00c')
+con = connection.instance()
 
 # @client.event
 # async def on_ready():
@@ -28,9 +27,13 @@ async def send_cmd_help(ctx):
     em.description = cmd.help
     return em
 
-@tasks.loop(minutes=5.0)
-def task(self):
-    return
+@tasks.loop(seconds=1.0)
+async def task():
+    print(con.instance.state)
+
+@bot.event
+async def on_ready():
+    task.start()
 
 @bot.event
 async def on_command_error(ctx, err):

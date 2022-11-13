@@ -1,6 +1,6 @@
+import boto3
 import connection
 
-con = connection.instance(id='i-074936a74ded7d00c')
+con = connection.instance()
 
-con.start_instance()
-con.stop_instance()
+print(con.stop_instance())

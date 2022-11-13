@@ -2,26 +2,36 @@ import boto3
 from botocore.exceptions import ClientError
 
 ec2 = boto3.resource('ec2')
+client = boto3.client('ec2')
 
 class instance():
-    def __init__(self, id, **options):
+    def __init__(self, **options):
         super().__init__(**options)
-        self.instance = ec2.Instance(id)
+
+        #get the last instance id of all instances tagged mcServer
+        filter = [{'Name':'tag:Name','Values':['mcServer']}]
+        for i in client.describe_instances(Filters=filter).get('Reservations'):
+            for j in i.get('Instances'):
+                instanceId = j.get('InstanceId')
+        self.instance = ec2.Instance(instanceId)
+
+    def get_instance(self):
+        return self.instance
 
     def get_status(self):
         try:
             self.instance.reload()
             res = self.instance.state
         except ClientError:
-            print("Couldn't reach instance %s", self.instance.instance-id)
+            print("Couldn't reach instance %s", self.instance.instance_id)
         else:
             return res
 
     def describe_instance(self):
         try:
-            res = self.instance.describe_attribute(Attribute='instanceType', DryRun=False)
+            res = self.instance.public_ip_address
         except:
-            print("Couldn't describe instance %s", self.instance.instance-id)
+            print("Couldn't describe instance %s", self.instance.instance_id)
             raise
         else:
             return res
@@ -39,7 +49,8 @@ class instance():
             response = self.instance.start()
             print("Starting instance %s.", self.instance.instance_id)
             self.instance.wait_until_running()
-            print("Instance started")
+            self.instance.reload()
+            print("Instance started with ip:%s", self.instance.public_ip_address)
         except ClientError:
             print("Couldn't start instance %s.", self.instance.instance_id)
             raise
