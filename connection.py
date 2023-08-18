@@ -13,7 +13,7 @@ class instance():
         for i in client.describe_instances(Filters=filter).get('Reservations'):
             for j in i.get('Instances'):
                 instanceId = j.get('InstanceId')
-        self.instance = ec2.Instance(instanceId)
+        self.instance = ec2.Instance(instanceId) 
 
     def get_instance(self):
         return self.instance
